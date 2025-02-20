@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        MAVEN_OPTS = "-Dmaven.repo.local=/var/jenkins_home/.m2/repository"
+    }
+
     triggers {
         cron('H/10 * * * 1')
     }
