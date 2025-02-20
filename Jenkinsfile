@@ -5,21 +5,36 @@ pipeline {
         cron('H/10 * * * 1')
     }
 
+    options {
+        skipDefaultCheckout()
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/Hi-kue/spring-petclinic.git'
-            }
+                script {
+                    try {
+                        checkout([$class: 'GitSCM',
+                            branches: [[name: '*/main']],
+                            userRemoteConfigs: [[url: 'https://github.com/Hi-kue/spring-petclinic.git']],
+                            extensions: [[$class: 'CleanBeforeCheckout']]
+                        ])
+                    } catch (Exception e) {
+                        error "Failed to checkout repository: ${e.getMessage()}"
+                    }
+                }
         }
 
         stage('Build') {
             steps {
+                echo "Building w/Maven..."
                 sh './mvnw clean package'
             }
         }
 
-        stage('Testing with Jacoco') {
+        stage('Jacoco Test') {
             steps {
+                echo "Testing w/Jacoco (Building Coverage)..."
                 sh './mvnw test'
             }
             post {
