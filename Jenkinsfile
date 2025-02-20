@@ -47,12 +47,13 @@ pipeline {
                 sh './mvnw test'
             }
             post {
-                always {
-                    jacoco(
-                        execPattern: '**/target/jacoco.exec',
+                success {
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO']],
+                        id: 'jacoco',
+                        sourceDirectories: [[path: 'src/main/java']],
                         classPattern: '**/target/classes',
-                        sourcePattern: '**/src/main/java',
-                        exclusionPattern: '**/model/*'
+                        execPattern: '**/target/jacoco.exec'
                     )
                 }
             }
