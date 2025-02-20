@@ -23,7 +23,7 @@ pipeline {
                         error "Failed to checkout repository: ${e.getMessage()}"
                     }
                 }
-        }
+            }
 
         stage('Build') {
             steps {
