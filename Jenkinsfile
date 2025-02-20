@@ -1,40 +1,44 @@
 pipeline {
     agent any
-
+    
     triggers {
         cron('H/10 * * * 1')
     }
-
+    
     options {
         skipDefaultCheckout()
     }
-
-    stages {
-        stage('Checkout') {
+    
+    stage('Checkout') {
             steps {
                 script {
                     try {
-                        checkout([$class: 'GitSCM',
+                        checkout scm: [
+                            $class: 'GitSCM',
                             branches: [[name: '*/main']],
                             userRemoteConfigs: [[url: 'https://github.com/Hi-kue/spring-petclinic.git']],
-                            extensions: [[$class: 'CleanBeforeCheckout']]
-                        ])
+                            extensions: [[
+                                $class: 'CleanBeforeCheckout'
+                            ]]
+                        ]
                     } catch (Exception e) {
                         error "Failed to checkout repository: ${e.getMessage()}"
                     }
                 }
             }
-
+        }
+        
         stage('Build') {
             steps {
-                echo "Building w/Maven..."
-                sh './mvnw clean package'
+                echo 'Building with Maven...'
+                sh 'chmod +x mvnw'
+                sh './mvnw clean package -DskipTests'
             }
         }
-
-        stage('Jacoco Test') {
+        
+        stage('Test') {
             steps {
-                echo "Testing w/Jacoco (Building Coverage)..."
+                echo 'Running tests with Jacoco coverage...'
                 sh './mvnw test'
             }
             post {
@@ -48,15 +52,13 @@ pipeline {
                 }
             }
         }
-    }
-
+    
     post {
         success {
-            echo 'Pipeline has stopped and completed successfully.'
+            echo 'Pipeline completed successfully'
         }
         failure {
-            echo 'Something went wrong, pipeline has failed.'
+            echo 'Pipeline failed'
         }
     }
-  }
 }
