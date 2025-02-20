@@ -48,13 +48,13 @@ pipeline {
             }
             post {
                 success {
-                    recordCoverage(
-                        tools: [[parser: 'JACOCO']],
-                        id: 'jacoco',
-                        sourceDirectories: [[path: 'src/main/java']],
+                    step([
+                        $class: 'JacocoPublisher',
+                        execPattern: '**/target/jacoco.exec',
                         classPattern: '**/target/classes',
-                        execPattern: '**/target/jacoco.exec'
-                    )
+                        sourcePattern: '**/src/main/java',
+                        exclusionPattern: '**/test/**,**/model/**'
+                    ])
                 }
             }
         }
