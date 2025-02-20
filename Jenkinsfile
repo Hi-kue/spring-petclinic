@@ -1,15 +1,16 @@
 pipeline {
     agent any
-    
+
     triggers {
         cron('H/10 * * * 1')
     }
-    
+
     options {
         skipDefaultCheckout()
     }
-    
-    stage('Checkout') {
+
+    stages {
+        stage('Checkout') {
             steps {
                 script {
                     try {
@@ -30,15 +31,15 @@ pipeline {
         
         stage('Build') {
             steps {
-                echo 'Building with Maven...'
+                echo 'Building w/Maven...'
                 sh 'chmod +x mvnw'
                 sh './mvnw clean package -DskipTests'
             }
         }
         
-        stage('Test') {
+        stage('Jacoco Test Coverage') {
             steps {
-                echo 'Running tests with Jacoco coverage...'
+                echo 'Running Tests with Jacoco Coverage...'
                 sh './mvnw test'
             }
             post {
@@ -52,7 +53,8 @@ pipeline {
                 }
             }
         }
-    
+    }
+
     post {
         success {
             echo 'Pipeline completed successfully'
